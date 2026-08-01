@@ -3,7 +3,7 @@ const path = require('path');
 
 test.use({ ignoreHTTPSErrors: true });
 
-const BASE_URL = 'https://dev2.registro.gt/estadisticas';
+const BASE_URL = 'https://dev2.registro.gt/estadisticas/';
 
 async function abrirEstadisticas(page) {
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
@@ -114,44 +114,37 @@ test('TC-08 (RF-1.3) - Verificar que un rango de fechas válido recalcula las es
 
   await guardarEvidencia(page, 'TC-08-estadisticas-rango-fechas.png');
 });
-//
-// test('TC-09 (RF-1.3) - Verificar comportamiento ante rango de fechas inválido o vacío', async ({ page }) => {
-//   // Precondiciones:
-//   // - La sección "Estadísticas" está accesible.
-//   // - Existen controles de fecha accesibles o un equivalente navegable por Playwright.
-//   // Pasos:
-//   // 1. Abrir la sección "Estadísticas".
-//   // 2. Colocar un rango inválido o vacío.
-//   // 3. Verificar que el sistema muestre un error o no rompa la página.
-//   // Resultado esperado:
-//   // - La interfaz no se cae y muestra validación, mensaje de error o conserva la estabilidad visual.
-//   // await abrirPortalYEntrarASestisticas(page);
-//
-//   // const { inicio, fin } = await obtenerRangoFechas(page);
-//   // await inicio.fill('2026-06-30');
-//   // await fin.fill('2026-01-01');
-//
-//   // TODO: Confirmar si la validación se dispara por blur, cambio de fecha o envío explícito.
-//   // const posiblesDisparadores = [
-//   //   page.getByRole('button', { name: /filtrar|aplicar|buscar|actualizar/i }),
-//   //   page.getByRole('button', { name: /aceptar|guardar/i }),
-//   // ];
-//
-//   // for (const disparador of posiblesDisparadores) {
-//   //   if ((await disparador.count()) > 0) {
-//   //     await disparador.first().click({ timeout: 5000 });
-//   //     break;
-//   //   }
-//   // }
-//
-//   // await page.waitForLoadState('networkidle');
-//
-//   // const errorPosible = page.getByText(/error|inv[aá]lida|rango|fecha/i).first();
-//   // if ((await errorPosible.count()) > 0) {
-//   //   await expect(errorPosible).toBeVisible();
-//   // } else {
-//   //   await expect(page.locator('body')).toBeVisible();
-//   // }
-//
-//   // await guardarEvidencia(page, 'TC-09-estadisticas-rango-invalido.png');
-// // });
+test('TC-09 (RF-1.3) - Verificar comportamiento ante rango de fechas inválido o vacío', async ({ page }) => {
+  // Precondiciones:
+  // - La sección "Estadísticas" está accesible.
+  // - Existen controles de fecha accesibles o un equivalente navegable por Playwright.
+  // Pasos:
+  // 1. Abrir la sección "Estadísticas".
+  // 2. Colocar un rango inválido o vacío.
+  // 3. Ejecutar la consulta.
+  // 4. Verificar que el sistema no rompa la página y mantenga estable la vista.
+  // Resultado esperado:
+  // - La interfaz sigue operativa, conserva el contexto de filtros y no navega a una pantalla de error.
+  await abrirEstadisticas(page);
+
+  const { inicio, fin } = await obtenerRangoFechas(page);
+  const rangoInicio = '2026-06-30';
+  const rangoFin = '2026-01-01';
+
+  await inicio.fill(rangoInicio);
+  await fin.fill(rangoFin);
+
+  await page.getByRole('button', { name: /consultar/i }).click();
+  await page.waitForLoadState('networkidle');
+
+  await expect(page).toHaveURL(/\/estadisticas\/?$/);
+  await expect(inicio).toHaveValue(rangoInicio);
+  await expect(fin).toHaveValue(rangoFin);
+  await expect(page.locator('body')).toBeVisible();
+  await expect(page.getByText(/filtros de reporte/i)).toBeVisible();
+  await expect(page.locator('#suffixChart')).toBeVisible();
+  await expect(page.locator('#statusChart')).toBeVisible();
+  await expect(page.locator('table')).toBeVisible();
+
+  await guardarEvidencia(page, 'TC-09-estadisticas-rango-invalido.png');
+});
