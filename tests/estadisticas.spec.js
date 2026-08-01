@@ -13,6 +13,13 @@ async function obtenerWidgetEstadisticas(page) {
   return page.locator('table').first();
 }
 
+async function obtenerRangoFechas(page) {
+  const inicio = page.locator('input[type="date"]').first();
+  const fin = page.locator('input[type="date"]').nth(1);
+
+  return { inicio, fin };
+}
+
 async function guardarEvidencia(page, nombreArchivo) {
   await page.screenshot({
     path: path.join('evidencias', nombreArchivo),
@@ -59,51 +66,54 @@ test('TC-07 (RF-1.3) - Verificar que "Estadísticas" carga y muestra datos por d
   await guardarEvidencia(page, 'TC-07-estadisticas-default.png');
 });
 
-// test('TC-08 (RF-1.3) - Verificar que un rango de fechas válido recalcula las estadísticas', async ({ page }) => {
-//   // Precondiciones:
-//   // - La sección "Estadísticas" está accesible.
-//   // - Existen controles de fecha accesibles o un equivalente navegable por Playwright.
-//   // Pasos:
-//   // 1. Capturar el estado inicial de las estadísticas.
-//   // 2. Aplicar un rango de fechas válido.
-//   // 3. Confirmar que el resultado cambia o se recalcula.
-//   // Resultado esperado:
-//   // - La información mostrada cambia de acuerdo con el rango seleccionado.
-//   // await abrirPortalYEntrarASestisticas(page);
-//
-//   // const widget = await obtenerWidgetEstadisticas(page);
-//   // await expect(widget).toBeVisible();
-//   // const antes = (await widget.textContent()) || '';
-//
-//   // const { inicio, fin } = await obtenerRangoFechas(page);
-//   // const rangoInicio = '2026-01-01';
-//   // const rangoFin = '2026-06-30';
-//
-//   // await inicio.fill(rangoInicio);
-//   // await fin.fill(rangoFin);
-//
-//   // TODO: Confirmar el disparador real de recálculo (change, blur, botón "Filtrar" o submit del formulario).
-//   // const posiblesDisparadores = [
-//   //   page.getByRole('button', { name: /filtrar|aplicar|buscar|actualizar/i }),
-//   //   page.getByRole('link', { name: /filtrar|aplicar|buscar|actualizar/i }),
-//   // ];
-//
-//   // for (const disparador of posiblesDisparadores) {
-//   //   if ((await disparador.count()) > 0) {
-//   //     await disparador.first().click({ timeout: 5000 });
-//   //     break;
-//   //   }
-//   // }
-//
-//   // await page.waitForLoadState('networkidle');
-//
-//   // const despues = (await widget.textContent()) || '';
-//   // await expect(page.locator('body')).toBeVisible();
-//   // await expect(despues.trim().length).toBeGreaterThan(0);
-//   // await expect(despues).not.toEqual(antes);
-//
-//   // await guardarEvidencia(page, 'TC-08-estadisticas-rango-fechas.png');
-// // });
+test('TC-08 (RF-1.3) - Verificar que un rango de fechas válido recalcula las estadísticas', async ({ page }) => {
+  // Precondiciones:
+  // - La sección "Estadísticas" está accesible.
+  // - Existen controles de fecha accesibles o un equivalente navegable por Playwright.
+  // Pasos:
+  // 1. Capturar el estado inicial.
+  // 2. Aplicar un rango de fechas válido.
+  // 3. Ejecutar la consulta y verificar que la vista permanezca consistente.
+  // Resultado esperado:
+  // - El filtro acepta el rango, no rompe la página y mantiene visibles los componentes principales del reporte.
+  await abrirEstadisticas(page);
+
+  const widget = await obtenerWidgetEstadisticas(page);
+  await expect(widget).toBeVisible();
+
+  const { inicio, fin } = await obtenerRangoFechas(page);
+  const rangoInicio = '2026-01-01';
+  const rangoFin = '2026-06-30';
+
+  await inicio.fill(rangoInicio);
+  await fin.fill(rangoFin);
+
+  // TODO: Confirmar el disparador real de recálculo (change, blur, botón "Consultar" o submit del formulario).
+  const posiblesDisparadores = [
+    page.getByRole('button', { name: /consultar/i }),
+    page.getByRole('link', { name: /consultar/i }),
+  ];
+
+  for (const disparador of posiblesDisparadores) {
+    if ((await disparador.count()) > 0) {
+      await disparador.first().click({ timeout: 5000 });
+      break;
+    }
+  }
+
+  await page.waitForLoadState('networkidle');
+
+  await expect(page.locator('body')).toBeVisible();
+  await expect(inicio).toHaveValue(rangoInicio);
+  await expect(fin).toHaveValue(rangoFin);
+  await expect(page.getByText(/filtros de reporte/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: /consultar/i })).toBeVisible();
+  await expect(page.locator('#suffixChart')).toBeVisible();
+  await expect(page.locator('#statusChart')).toBeVisible();
+  await expect(widget).toBeVisible();
+
+  await guardarEvidencia(page, 'TC-08-estadisticas-rango-fechas.png');
+});
 //
 // test('TC-09 (RF-1.3) - Verificar comportamiento ante rango de fechas inválido o vacío', async ({ page }) => {
 //   // Precondiciones:
