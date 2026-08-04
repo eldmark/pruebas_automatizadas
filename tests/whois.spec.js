@@ -132,3 +132,54 @@ test('TC-36 (RF-2.2) - Verificar el WHOIS de un dominio no registrado', async ({
 
   await guardarEvidencia(page, 'TC-36-whois-dominio-no-registrado.png');
 });
+
+test('TC-37 (RF-2.2) - Verificar la inconsistencia entre el buscador y el WHOIS para uvg.edu.gt', async ({ page }) => {
+  // Precondiciones:
+  // - El portal debe estar disponible en la ruta principal.
+  // - El dominio uvg.edu.gt debe existir en el WHOIS como dominio registrado.
+  // Pasos realizados:
+  // 1. Abrir la página principal.
+  // 2. Buscar "uvg" desde el buscador de dominios (#heroSearchInput).
+  // 3. Localizar uvg.edu.gt en los resultados y revisar cómo lo clasifica el buscador.
+  // 4. Consultar el WHOIS del mismo dominio.
+  // 5. Comparar ambos estados.
+  // Resultado esperado (según RF-2.2):
+  // - Si el WHOIS muestra uvg.edu.gt como dominio registrado, el buscador debería listarlo
+  //   dentro de "Dominios Registrados" / "No disponible" y no ofrecer el flujo de solicitud.
+  // Resultado obtenido:
+  // - DEFECTO: el buscador clasifica uvg.edu.gt como "Requiere Validación" y habilita el botón
+  //   "Solicitar", mientras que el WHOIS lo reporta ACTIVO con titular y fecha de expiración.
+  //   La prueba deja constancia de ambos estados contradictorios.
+  await navegarConReintento(page, 'https://dev2.registro.gt/');
+
+  await page.locator('#heroSearchInput').fill('uvg');
+  await page.locator('#heroSearchForm button[type="submit"]').click();
+  await page.waitForURL(/\/results\/?\?q=uvg/);
+
+  // El buscador clasifica uvg.edu.gt como restringido, no como registrado.
+  const botonSolicitar = page.locator('button[onclick*="uvg.edu.gt"]');
+  await expect(botonSolicitar).toBeVisible();
+  await expect(botonSolicitar).toContainText('Solicitar');
+
+  // La tarjeta que contiene el botón muestra el dominio y la etiqueta "Requiere Validación".
+  const tarjetaEdu = botonSolicitar.locator('xpath=ancestor::div[3]');
+  await expect(tarjetaEdu).toContainText('uvg.edu.gt');
+  await expect(tarjetaEdu).toContainText('Requiere Validación');
+
+  // El bloque de dominios ya registrados no se muestra: no hay enlaces al WHOIS en los resultados.
+  await expect(page.getByText('Dominios Registrados', { exact: false })).toBeHidden();
+  await expect(page.locator('a[href*="/whois"]')).toHaveCount(0);
+
+  await guardarEvidencia(page, 'TC-37-buscador-uvg-requiere-validacion.png');
+
+  // El WHOIS del mismo dominio sí lo reporta como registrado y activo.
+  await navegarConReintento(page, 'https://dev2.registro.gt/whois?q=uvg.edu.gt');
+
+  await expect(page.locator('#domain-content')).toBeVisible();
+  await expect(page.locator('#domainNameDisplay')).toHaveText('uvg.edu.gt');
+  await expect(page.locator('#domainStatusDisplay')).toHaveText(/ACTIVO/i);
+  await expect(page.locator('#orgNameDisplay')).not.toBeEmpty();
+  await expect(page.locator('#expirationDateDisplay')).not.toBeEmpty();
+
+  await guardarEvidencia(page, 'TC-37-whois-uvg-edu-gt-activo.png');
+});
