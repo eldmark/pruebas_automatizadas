@@ -6,7 +6,18 @@ test.use({ ignoreHTTPSErrors: true });
 const BASE_URL = 'https://dev2.registro.gt/estadisticas/';
 
 async function abrirEstadisticas(page) {
-  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+  for (let intento = 0; intento < 2; intento += 1) {
+    try {
+      await page.goto(BASE_URL, { waitUntil: 'commit' });
+      await page.waitForLoadState('domcontentloaded');
+      return;
+    } catch (error) {
+      if (intento === 1) {
+        throw error;
+      }
+      await page.waitForTimeout(1000);
+    }
+  }
 }
 
 async function obtenerWidgetEstadisticas(page) {
