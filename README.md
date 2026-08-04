@@ -17,6 +17,8 @@ Este proyecto contiene una suite de pruebas end-to-end para validar sitios del d
 - `tests/estadisticas.spec.js`: casos RF-1.3.
 - `tests/internacionalizacion.spec.js`: casos RF-5.1.
 - `tests/whois.spec.js`: casos RF-2.2 (consulta WHOIS de dominios registrados).
+- `tests/carrito-rf31.spec.js`: casos TC-16 a TC-18 del RF-3.1 (carrito anónimo y `localStorage`).
+- `documentacion-rf-3.1.md`: documentación lista para incorporar al pasaporte de pruebas.
 - `tests/example.spec.js`: ejemplo base de Playwright.
 
 ## Cómo ejecutarlo en Arch Linux
