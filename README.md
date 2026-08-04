@@ -12,7 +12,7 @@ Este proyecto contiene una suite de pruebas end-to-end para validar sitios del d
 ## Estructura
 
 - `playwright.config.js`: configuración de Playwright.
-- `tests/pruebas.js`: caso RF-1.1.
+- `tests/pruebas.spec.js`: caso RF-1.1.
 - `tests/news.spec.js`: caso RF-1.2.
 - `tests/estadisticas.spec.js`: casos RF-1.3.
 - `tests/internacionalizacion.spec.js`: casos RF-5.1.
