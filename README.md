@@ -4,7 +4,7 @@ Este proyecto contiene una suite de pruebas end-to-end para validar sitios del d
 
 ## Qué hace el proyecto
 
-- Verifica la página principal de `https://gt.nic.gt`.
+- Verifica la página principal de `https://dev2.registro.gt`.
 - Verifica la sección de noticias de `https://dev2.registro.gt`.
 - Verifica la sección de estadísticas en `https://dev2.registro.gt/estadisticas/`.
 - Genera capturas en la carpeta `evidencias/` cuando los tests llegan al final.

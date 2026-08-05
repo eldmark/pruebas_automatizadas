@@ -25,14 +25,19 @@ npx playwright test tests/pruebas.spec.js --project=chromium
 | **Requisito relacionado** | RF-1.1 |
 | **Herramienta / método** | Navegar por medio de browser integrado con Playwright |
 | **Precondiciones** | Tener conexión a Internet.<br>No es necesario iniciar sesión. |
-| **Pasos realizados** | 1. Abrir https://gt.nic.gt<br>2. Esperar que cargue la página.<br>3. Verificar que exista el encabezado principal.<br>4. Verificar que exista el texto descriptivo.<br>5. Verificar que la página no esté vacía. |
+| **Pasos realizados** | 1. Abrir https://dev2.registro.gt/<br>2. Esperar que cargue la página y cerrar el aviso modal "Página de Pruebas".<br>3. Verificar que exista el encabezado principal.<br>4. Verificar que exista el texto descriptivo.<br>5. Verificar que la página no esté vacía. |
 | **Resultado esperado** | La información principal del servicio aparece correctamente. |
-| **Resultado obtenido** | Se pudo encontrar toda la página principal: el encabezado principal es visible, el cuerpo contiene el texto "Dominios" y existe al menos un enlace visible. |
+| **Resultado obtenido** | Se pudo encontrar toda la página principal: el título es "Registro de dominios .gt", el encabezado principal es visible, el cuerpo contiene el texto "Dominios" y existe al menos un enlace visible. |
 | **Evidencia** | `evidencias/TC-01-informacion-principal.png` |
 
 ![TC-01](../evidencias/TC-01-informacion-principal.png)
 
-**Observaciones:** el sitio https://gt.nic.gt presenta un certificado cuyo nombre común no coincide con el dominio (`net::ERR_CERT_COMMON_NAME_INVALID`), por lo que la prueba se ejecuta con `ignoreHTTPSErrors: true`. Además, el archivo originalmente se llamaba `tests/pruebas.js` y Playwright no lo detectaba, porque el patrón por defecto de descubrimiento es `**/*.@(spec|test).[jt]s`; se renombró a `tests/pruebas.spec.js`.
+**Observaciones:**
+
+- Las pruebas se ejecutan contra el portal de pruebas https://dev2.registro.gt/. Antes se usaba https://gt.nic.gt, pero ese dominio redirige a la plataforma actual (`https://www.gt/sitio/`) y desde algunas redes no permite llegar al ambiente de pruebas.
+- El portal muestra un aviso modal "Página de Pruebas" (`#testPageNoticeModal`) que intercepta los clics, por lo que las pruebas lo cierran con el botón "Entendido" antes de interactuar con la página.
+- Las pruebas se ejecutan con `ignoreHTTPSErrors: true` por la validación de certificados del ambiente de pruebas.
+- El archivo originalmente se llamaba `tests/pruebas.js` y Playwright no lo detectaba, porque el patrón por defecto de descubrimiento es `**/*.@(spec|test).[jt]s`; se renombró a `tests/pruebas.spec.js`.
 
 ---
 
@@ -45,9 +50,9 @@ npx playwright test tests/pruebas.spec.js --project=chromium
 | **Requisito relacionado** | RF-1.1 |
 | **Herramienta / método** | Navegar por medio de browser integrado con Playwright |
 | **Precondiciones** | Tener conexión a Internet.<br>No es necesario iniciar sesión. |
-| **Pasos realizados** | 1. Abrir https://gt.nic.gt<br>2. Esperar que cargue la página.<br>3. Verificar que exista el menú de navegación principal.<br>4. Verificar que el menú incluya las secciones informativas del servicio (Inicio, Procedimientos, Tarifas, FAQ, Contacto) y los enlaces a las políticas de registro y de controversias.<br>5. Verificar que se muestren las líneas telefónicas de contacto.<br>6. Verificar que exista el carrusel informativo de la portada. |
+| **Pasos realizados** | 1. Abrir https://dev2.registro.gt/<br>2. Esperar que cargue la página y cerrar el aviso modal "Página de Pruebas".<br>3. Verificar que exista el menú de navegación principal.<br>4. Verificar que el menú incluya las secciones informativas del servicio (Inicio, Procedimientos, Tarifas, FAQ, Estadísticas) y los enlaces a las políticas de registro y de controversias.<br>5. Verificar que se muestren las líneas telefónicas y el correo de contacto en el pie de página.<br>6. Verificar que exista el carrusel informativo de la portada. |
 | **Resultado esperado** | La portada expone la navegación y los datos de contacto del servicio. |
-| **Resultado obtenido** | El menú principal se mostró completo con las cinco secciones informativas y los enlaces a ambas políticas; las líneas +502.23688302 y +502.23688564 aparecen en la página y el carrusel informativo es visible. |
+| **Resultado obtenido** | El menú principal se mostró completo con las cinco secciones informativas y los enlaces a ambas políticas; el pie de página muestra las líneas +502.23688302 y +502.23688564 junto al correo admin@cctld.gt, y el carrusel informativo es visible. |
 | **Evidencia** | `evidencias/TC-02-navegacion-y-contacto.png` |
 
 ![TC-02](../evidencias/TC-02-navegacion-y-contacto.png)
@@ -63,9 +68,9 @@ npx playwright test tests/pruebas.spec.js --project=chromium
 | **Requisito relacionado** | RF-1.1 |
 | **Herramienta / método** | Navegar por medio de browser integrado con Playwright |
 | **Precondiciones** | Tener conexión a Internet.<br>No es necesario iniciar sesión. |
-| **Pasos realizados** | 1. Abrir https://gt.nic.gt<br>2. Verificar que el buscador de dominios esté visible en la portada.<br>3. Escribir "uvg" en el campo de búsqueda.<br>4. Enviar el formulario de búsqueda.<br>5. Verificar que se cargue la página de resultados.<br>6. Verificar que los resultados incluyan dominios .gt disponibles y registrados.<br>7. Verificar que el menú de navegación se conserve en la página de resultados. |
+| **Pasos realizados** | 1. Abrir https://dev2.registro.gt/ y cerrar el aviso modal "Página de Pruebas".<br>2. Verificar que el buscador de dominios esté visible en la portada.<br>3. Escribir "uvg" en el campo de búsqueda.<br>4. Enviar el formulario de búsqueda.<br>5. Verificar que se cargue la página de resultados.<br>6. Verificar que los resultados incluyan los dominios .gt consultados.<br>7. Verificar que el buscador se conserve en la página de resultados. |
 | **Resultado esperado** | El servicio principal de consulta de dominios está accesible desde la portada y devuelve resultados. |
-| **Resultado obtenido** | El buscador se mostró con el marcador "Escriba un Nombre de Dominio"; al enviar "uvg" el sitio cargó `results.php` con la clasificación de dominios, incluyendo uvg.com.gt y uvg.edu.gt en el bloque "Registrados", y conservó el menú de navegación. |
+| **Resultado obtenido** | El buscador se mostró con el marcador "escribe un nombre de dominio"; al enviar "uvg" el sitio cargó `/results/?q=uvg` con la sección "Disponibles para registro", incluyendo uvg.com.gt y uvg.edu.gt, y conservó el buscador en la página de resultados. |
 | **Evidencia** | `evidencias/TC-03-buscador-dominios.png` |
 
 ![TC-03](../evidencias/TC-03-buscador-dominios.png)
