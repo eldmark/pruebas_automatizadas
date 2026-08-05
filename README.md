@@ -7,6 +7,9 @@ Este proyecto contiene una suite de pruebas end-to-end para validar sitios del d
 - Verifica la página principal de `https://dev2.registro.gt`.
 - Verifica la sección de noticias de `https://dev2.registro.gt`.
 - Verifica la sección de estadísticas en `https://dev2.registro.gt/estadisticas/`.
+- Verifica el buscador de disponibilidad de dominios en `https://www.gt/sitio/`.
+- Verifica la consulta WHOIS, el carrito sin sesión y el cambio de idioma (ES/EN).
+- Documenta los requisitos de renovación (RF-4.1 y RF-4.2) que no están implementados.
 - Genera capturas en la carpeta `evidencias/` cuando los tests llegan al final.
 
 ## Estructura
@@ -19,7 +22,10 @@ Este proyecto contiene una suite de pruebas end-to-end para validar sitios del d
 - `tests/internacionalizacion.spec.js`: casos RF-5.1.
 - `tests/whois.spec.js`: casos RF-2.2 (consulta WHOIS de dominios registrados).
 - `tests/carrito.spec.js`: casos TC-16 a TC-18 del RF-3.1 (carrito anónimo y `localStorage`).
+- `tests/tests/renovacion-rapida.spec.js`: casos RF-4.1 (renovación rápida, requisito no implementado).
+- `tests/pago-renovacion.spec.js`: casos RF-4.2 (pago de renovación, bloqueado por RF-4.1).
 - `tests/example.spec.js`: ejemplo base de Playwright.
+- `docs/casos-de-prueba.md`: documentación de todos los casos ejecutados, con pasos, resultados y evidencias.
 
 ## Cómo ejecutarlo en Arch Linux
 

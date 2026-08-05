@@ -12,7 +12,7 @@ async function cerrarModalPruebas(page) {
 
 test.describe('RF-4.2 - Pago de renovación y notificación a contactos (bloqueado por dependencia de RF-4.1)', () => {
 
-  test('TC-XX: No existe flujo de pago de renovación accesible sin sesión', async ({ page }) => {
+  test('TC-41 (RF-4.2): No existe flujo de pago de renovación accesible sin sesión', async ({ page }) => {
     await page.goto(URL);
     await cerrarModalPruebas(page);
     // Ya que no existe funcionalidad de renovación (ver RF-4.1),
@@ -22,7 +22,7 @@ test.describe('RF-4.2 - Pago de renovación y notificación a contactos (bloquea
     await page.screenshot({ path: 'evidencias/rf4.2-tc01-sin-flujo-pago-renovacion.png', fullPage: true });
   });
 
-  test('TC-XX: El único camino de pago es vía carrito de compra, que exige login', async ({ page }) => {
+  test('TC-42 (RF-4.2): El único camino de pago es vía carrito de compra, que exige login', async ({ page }) => {
     await page.goto(URL);
     await cerrarModalPruebas(page);
     await page.locator('#heroSearchInput').fill('gt');
@@ -35,7 +35,7 @@ test.describe('RF-4.2 - Pago de renovación y notificación a contactos (bloquea
     await page.screenshot({ path: 'evidencias/rf4.2-tc02-flujo-compra-requiere-login.png', fullPage: true });
   });
 
-  test('TC-XX: No es posible verificar notificación a contactos sin completar una renovación real', async ({ page }) => {
+  test('TC-43 (RF-4.2): No es posible verificar notificación a contactos sin completar una renovación real', async ({ page }) => {
     // Este caso queda documentado como NO EJECUTABLE / MANUAL BLOQUEADO,
     // ya que requeriría: 1) que exista el flujo de renovación (no existe),
     // 2) completar un pago real, 3) acceso a las cuentas de correo de los

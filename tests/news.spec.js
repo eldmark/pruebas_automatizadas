@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ ignoreHTTPSErrors: true });
 
-test('RF-1.2 - Resumen de las últimas tres noticias de news.registro.gt', async ({ page }) => {
+test('TC-04 (RF-1.2) - Resumen de las últimas tres noticias de news.registro.gt', async ({ page }) => {
   await page.goto('https://dev2.registro.gt');
   await page.waitForSelector('article h3');
 
