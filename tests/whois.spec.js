@@ -3,6 +3,15 @@ const path = require('path');
 
 test.use({ ignoreHTTPSErrors: true });
 
+// El aviso modal "Página de Pruebas" solo deja de mostrarse si se marca
+// test_page_modal_dismissed en localStorage; addInitScript lo aplica antes
+// de cada navegación (no solo la primera), así no bloquea clics posteriores.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('test_page_modal_dismissed', 'true');
+  });
+});
+
 async function guardarEvidencia(page, nombreArchivo) {
   await page.screenshot({
     path: path.join('evidencias', nombreArchivo),

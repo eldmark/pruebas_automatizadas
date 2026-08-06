@@ -3,6 +3,16 @@ import { test, expect } from '@playwright/test';
 const URL = 'https://dev2.registro.gt/';
 test.use({ ignoreHTTPSErrors: true });
 
+// El aviso modal "Página de Pruebas" solo deja de mostrarse si se marca
+// test_page_modal_dismissed en localStorage; addInitScript lo aplica antes
+// de cada navegación (no solo la primera), así no bloquea clics posteriores
+// (p. ej. "Reservar" tras la navegación a /results/ en TC-42).
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('test_page_modal_dismissed', 'true');
+  });
+});
+
 async function cerrarModalPruebas(page) {
   const boton = page.getByRole('button', { name: 'Entendido' });
   if (await boton.isVisible().catch(() => false)) {

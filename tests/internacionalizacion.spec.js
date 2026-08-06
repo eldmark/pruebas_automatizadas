@@ -3,6 +3,15 @@ const path = require('path');
 
 test.use({ ignoreHTTPSErrors: true });
 
+// El aviso modal "Página de Pruebas" solo deja de mostrarse si se marca
+// test_page_modal_dismissed en localStorage; addInitScript lo aplica antes
+// de cada navegación (no solo la primera), así no bloquea clics posteriores.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('test_page_modal_dismissed', 'true');
+  });
+});
+
 async function guardarEvidencia(page, nombreArchivo) {
   await page.screenshot({
     path: path.join('evidencias', nombreArchivo),
@@ -25,6 +34,17 @@ async function navegarConReintento(page, url) {
   }
 }
 
+// El sitio siempre renderiza dos copias de la navegación (menú de escritorio
+// y el panel #mobile-main-panel), ambas con el mismo texto de enlace; por eso
+// getByRole('link', { name }) es ambiguo. El panel móvil se oculta con un
+// transform/overflow (no display:none), así que :visible no lo distingue;
+// se excluye explícitamente por ser descendiente de #mobile-main-panel.
+function enlaceNav(page, texto) {
+  return page.locator(
+    `xpath=//a[normalize-space(text())="${texto}" and not(ancestor::*[@id="mobile-main-panel"])]`
+  );
+}
+
 test('TC-31 (RF-5.1) - Verificar alternancia de idioma de español a inglés', async ({ page }) => {
   // Precondiciones:
   // - El portal debe estar disponible en la ruta principal.
@@ -39,19 +59,19 @@ test('TC-31 (RF-5.1) - Verificar alternancia de idioma de español a inglés', a
   await navegarConReintento(page, 'https://dev2.registro.gt/');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
-  await expect(page.getByRole('link', { name: 'EN', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'EN')).toBeVisible();
 
   await Promise.all([
     page.waitForURL(/\/en\/?$/),
-    page.getByRole('link', { name: 'EN', exact: true }).click(),
+    enlaceNav(page, 'EN').click(),
   ]);
 
   await expect(page).toHaveURL(/\/en\/?$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page).toHaveTitle(/\.gt Domain Registration/);
   await expect(page.getByText(/Register your \.gt domain today\./i)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'ES', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'ES')).toBeVisible();
+  await expect(enlaceNav(page, 'Home')).toBeVisible();
 
   await guardarEvidencia(page, 'TC-31-cambio-idioma-espanol-a-ingles.png');
 });
@@ -70,19 +90,19 @@ test('TC-32 (RF-5.1) - Verificar alternancia de idioma de inglés a español', a
   await navegarConReintento(page, 'https://dev2.registro.gt/en');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.getByRole('link', { name: 'ES', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'ES')).toBeVisible();
 
   await Promise.all([
     page.waitForURL(/\/?$/),
-    page.getByRole('link', { name: 'ES', exact: true }).click(),
+    enlaceNav(page, 'ES').click(),
   ]);
 
   await expect(page).toHaveURL(/\/?$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await expect(page).toHaveTitle(/Registro de dominios \.gt/);
   await expect(page.getByText(/Registra tu dominio \.gt hoy mismo\./i)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'EN', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Inicio', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'EN')).toBeVisible();
+  await expect(enlaceNav(page, 'Inicio')).toBeVisible();
 
   await guardarEvidencia(page, 'TC-32-cambio-idioma-ingles-a-espanol.png');
 });
@@ -101,27 +121,27 @@ test('TC-33 (RF-5.1) - Verificar alternancia consecutiva de idioma en la misma s
   await navegarConReintento(page, 'https://dev2.registro.gt/');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
-  await expect(page.getByRole('link', { name: 'EN', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'EN')).toBeVisible();
 
   await Promise.all([
     page.waitForURL(/\/en\/?$/),
-    page.getByRole('link', { name: 'EN', exact: true }).click(),
+    enlaceNav(page, 'EN').click(),
   ]);
 
   await expect(page).toHaveURL(/\/en\/?$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByText(/Register your \.gt domain today\./i)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'ES', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'ES')).toBeVisible();
 
   await Promise.all([
     page.waitForURL(/\/?$/),
-    page.getByRole('link', { name: 'ES', exact: true }).click(),
+    enlaceNav(page, 'ES').click(),
   ]);
 
   await expect(page).toHaveURL(/\/?$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await expect(page.getByText(/Registra tu dominio \.gt hoy mismo\./i)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'EN', exact: true })).toBeVisible();
+  await expect(enlaceNav(page, 'EN')).toBeVisible();
 
   await guardarEvidencia(page, 'TC-33-alternancia-consecutiva-idioma.png');
 });

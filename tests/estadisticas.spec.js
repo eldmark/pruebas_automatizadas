@@ -3,6 +3,16 @@ const path = require('path');
 
 test.use({ ignoreHTTPSErrors: true });
 
+// El aviso modal "Página de Pruebas" solo deja de mostrarse si se marca
+// test_page_modal_dismissed en localStorage; addInitScript lo aplica antes
+// de la navegación, así no bloquea el clic en "Consultar" (su timing de
+// aparición varía entre navegadores: en Firefox/WebKit sí llega a bloquear).
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('test_page_modal_dismissed', 'true');
+  });
+});
+
 const BASE_URL = 'https://dev2.registro.gt/estadisticas/';
 
 async function abrirEstadisticas(page) {
